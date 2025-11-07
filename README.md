@@ -24,7 +24,7 @@ Sounds from:
 
 ### 🧊 Known Issue: Snow Golem Texture Glitch
 
-There’s an ongoing bug with the Snow Golem — when it’s sheared, the second skin layer disappears, causing a texture glitch.
+There’s an ongoing bug with the Snow Golem, when it’s sheared, the second skin layer disappears, causing a texture glitch.
 
 **With pumpkin head:**  
 ![With pumpkin head](https://media.forgecdn.net/attachments/1384/497/a95588bf-8624-4195-a32e-d3e8d16f6027.jpeg)
