@@ -4,7 +4,7 @@
         "description": "§dMy Monster Girls§r replaces certain mob models with §dfemale§r versions while keeping Minecraft’s §6original atmosphere§r.\n§7(Resource Pack ported by §bMerasu§7)",
         "name": "§dMy Monster Girls §7(§bBedrock Port§7)",
         "uuid": "3432aeb6-83a2-4806-92f7-b052167cd65b",
-        "version": [0, 0, 1],
+        "version": [0, 0, 2],
         "min_engine_version": [ 1, 21, 110 ]
     },
     "modules": [
