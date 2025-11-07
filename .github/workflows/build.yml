@@ -12,7 +12,10 @@ jobs:
   build-and-release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0    # we need full history to create tags safely
 
       - name: Read version from manifest.json
         id: getver
@@ -22,19 +25,45 @@ jobs:
             exit 1
           fi
           ver=$(jq -r '.header.version | join(".")' manifest.json)
+          if [ -z "$ver" ] || [ "$ver" = "null" ]; then
+            echo "Could not parse version from manifest.json"
+            exit 1
+          fi
           tag="v${ver}"
           echo "version=$ver" >> "$GITHUB_OUTPUT"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
-
-      - name: Install zip and jq
+        
+      - name: Install zip and jq (Debian)
         run: sudo apt-get update && sudo apt-get install -y zip jq
 
-      - name: Create .mcpack
+      - name: Create .mcpack archive
         id: pack
         run: |
           filename="my-monster-girls-${{ steps.getver.outputs.version }}.mcpack"
           zip -r "$filename" . -x ".git/*" ".github/*" "*.mcpack" "node_modules/*"
           echo "filename=$filename" >> "$GITHUB_OUTPUT"
+          ls -lh "$filename"
+
+      - name: Configure authenticated git remote for pushing tag
+        run: |
+          # configure an HTTPS remote using the GITHUB_TOKEN so we can push tags
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create and push tag (if not exists)
+        id: create_tag
+        run: |
+          TAG="${{ steps.getver.outputs.tag }}"
+          # if tag already exists on remote, skip creating
+          if git ls-remote --tags origin | grep -q "refs/tags/${TAG}$"; then
+            echo "Tag ${TAG} already exists on remote; skipping creation"
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
+          else
+            git tag -a "$TAG" -m "Release $TAG (generated from manifest.json)"
+            git push origin "$TAG"
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Create release and upload asset (softprops)
         uses: softprops/action-gh-release@v1
