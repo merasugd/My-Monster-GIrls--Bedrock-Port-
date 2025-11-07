@@ -1,51 +1,70 @@
-name: "Build and Release .mcpack"
+name: Build & Release .mcpack
 
 on:
   push:
-    tags:
-      - 'v*'        # or whatever tag scheme you use (e.g. ‘v*.*.*’)
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
-  release:
+  build-and-release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write   # needed for creating releases etc
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Read version from manifest.json
-        id: version
+        id: getver
         run: |
-          version=$(jq -r '.header.version | join(".")' manifest.json)
-          echo "VERSION=$version" >> $GITHUB_OUTPUT
+          if [ ! -f manifest.json ]; then
+            echo "manifest.json not found!"
+            exit 1
+          fi
+          ver=$(jq -r '.header.version | join(".")' manifest.json)
+          if [ -z "$ver" ] || [ "$ver" = "null" ]; then
+            echo "Could not parse version from manifest.json"
+            exit 1
+          fi
+          tag="v${ver}"
+          echo "version=$ver" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
-      - name: Prepare .mcpack archive
+      - name: Install zip and jq (Debian)
+        run: sudo apt-get update && sudo apt-get install -y zip jq
+
+      - name: Create .mcpack archive
+        id: pack
         run: |
-          # adjust the path(s) to include everything needed in your addon
-          zip -r addon-${{ steps.version.outputs.VERSION }}.mcpack \
-            . \
-            -x '.git/*' '.github/*'   # exclude git/git-metadata, adjust as desired
-          echo "ARTIFACT=addon-${{ steps.version.outputs.VERSION }}.mcpack" >> $GITHUB_OUTPUT
+          filename="my-monster-girls-${{ steps.getver.outputs.version }}.mcpack"
+          zip -r "$filename" . -x ".git/*" ".github/*" "*.mcpack" "node_modules/*"
+          echo "filename=$filename" >> "$GITHUB_OUTPUT"
+          ls -lh "$filename"
 
-      - name: Create GitHub Release
+      - name: Create GitHub release
         id: create_release
-        uses: softprops/action-gh-release@v2
+        uses: actions/create-release@v1
         with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
+          tag_name: ${{ steps.getver.outputs.tag }}
+          release_name: "Release ${{ steps.getver.outputs.tag }}"
           body: |
             This is an automated pack built from GitHub commits.
-            Current version: v${{ steps.version.outputs.VERSION }}
+
+            **Current version:** ${{ steps.getver.outputs.tag }}
+
+            The `.mcpack` file attached to this release was generated automatically by the repository's GitHub Actions workflow and contains the latest addon / resource pack contents.
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload .mcpack asset
-        uses: softprops/action-gh-release@v2
+      - name: Upload .mcpack to release
+        uses: actions/upload-release-asset@v1
         with:
-          tag_name: ${{ github.ref_name }}
-          files: ${{ steps.version.outputs.ARTIFACT }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.pack.outputs.filename }}
+          asset_name: ${{ steps.pack.outputs.filename }}
+          asset_content_type: application/octet-stream
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
