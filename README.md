@@ -1,8 +1,8 @@
-**THIS IS THE BEDROCK PORT OF THE MONSTER GIRLS RESOURCE PACK OF** [<span style="color: rgb(53, 152, 219);">ozzyv_</span>](https://modrinth.com/user/ozzyv_)
+**THIS IS THE BEDROCK PORT OF THE MONSTER GIRLS RESOURCE PACK OF** [**ozzyv_**](https://modrinth.com/user/ozzyv_)
 
-Original Resource Pack: [<span style="color:#3598DB;">Modrinth</span>](https://modrinth.com/resourcepack/my-monster-girls)
+Original Resource Pack: [**Modrinth**](https://modrinth.com/resourcepack/my-monster-girls)
 
-Resource Pack ported by: Merasu
+Resource Pack ported by: **Merasu**
 
 ---
 
@@ -10,21 +10,21 @@ My Monster Girls is a resource pack that replaces the standard models of some mo
 
 *   Adds unique female mob models, enlivening the look of the game.
 *   Retains the vanilla Minecraft style, but makes the mobs more diverse.
-*   The resource pack only modifies models, textures and sounds, without affecting the mechanics of the game.
+*   The resource pack only modifies models, textures, and sounds, without affecting the mechanics of the game.
 
-ozzyv_ was inspired:
+ozzyv_ was inspired by:
 
-* [<span style="color:#3598DB;">redstonae</span>](https://modrinth.com/resourcepack/fem-zombies+)
+* [**redstonae**](https://modrinth.com/resourcepack/fem-zombies+)
 
 Sounds from:
 
-* [<span style="color:#3598DB;">Cute Mob Sounds</span>](https://www.planetminecraft.com/texture-pack/voice-for-cute-mob-models-female-mob-voices/)
+* [**Cute Mob Sounds**](https://www.planetminecraft.com/texture-pack/voice-for-cute-mob-models-female-mob-voices/)
 
 ---
 
 ### 🧊 Known Issue: Snow Golem Texture Glitch
 
-There’s an ongoing bug with the Snow Golem, when it’s sheared, the second skin layer disappears, causing a texture glitch.
+There’s an ongoing bug with the Snow Golem — when it’s sheared, the second skin layer disappears, causing a texture glitch.
 
 **With pumpkin head:**  
 ![With pumpkin head](https://media.forgecdn.net/attachments/1384/497/a95588bf-8624-4195-a32e-d3e8d16f6027.jpeg)
