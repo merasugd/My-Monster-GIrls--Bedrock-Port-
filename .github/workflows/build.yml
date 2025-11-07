@@ -15,6 +15,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install zip and jq (Debian)
+        run: sudo apt-get update && sudo apt-get install -y zip jq git
+
       - name: Read version from manifest.json
         id: getver
         run: |
@@ -31,8 +34,22 @@ jobs:
           echo "version=$ver" >> "$GITHUB_OUTPUT"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
-      - name: Install zip and jq (Debian)
-        run: sudo apt-get update && sudo apt-get install -y zip jq
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          tag="${{ steps.getver.outputs.tag }}"
+          if git ls-remote --tags origin | grep -q "refs/tags/${tag}$"; then
+            echo "Tag ${tag} already exists — skipping build and release."
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Stop if tag exists
+        if: steps.check_tag.outputs.exists == 'true'
+        run: |
+          echo "Release already exists. Skipping the rest of the workflow."
+          exit 0
 
       - name: Create .mcpack archive
         id: pack

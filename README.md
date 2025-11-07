@@ -19,4 +19,15 @@ ozzyv_ was inspired:
 Sounds from:
 
 * [<span style="color:#3598DB;">Cute Mob Sounds</span>](https://www.planetminecraft.com/texture-pack/voice-for-cute-mob-models-female-mob-voices/)
- 
+
+---
+
+### 🧊 Known Issue: Snow Golem Texture Glitch
+
+There’s an ongoing bug with the Snow Golem, when it’s sheared, the second skin layer disappears, causing a texture glitch.
+
+**With pumpkin head:**  
+![With pumpkin head](https://media.forgecdn.net/attachments/1384/497/a95588bf-8624-4195-a32e-d3e8d16f6027.jpeg)
+
+**Without pumpkin head (bugged):**  
+![Without pumpkin head](https://media.forgecdn.net/attachments/1384/498/79c522c7-ab6c-4095-826e-af1a779e1542.jpeg)
