@@ -1,0 +1,76 @@
+name: Build & Release .mcpack
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read version from manifest.json
+        id: getver
+        run: |
+          # Ensure manifest exists
+          if [ ! -f manifest.json ]; then
+            echo "manifest.json not found!"
+            exit 1
+          fi
+          # Join the version array into a dotted string, e.g. 0.0.1
+          ver=$(jq -r '.header.version | join(".")' manifest.json)
+          if [ -z "$ver" ] || [ "$ver" = "null" ]; then
+            echo "Could not parse version from manifest.json"
+            exit 1
+          fi
+          tag="v${ver}"
+          echo "version=$ver" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Short message: version=$ver tag=$tag"
+
+      - name: Install zip and jq (Debian)
+        run: sudo apt-get update && sudo apt-get install -y zip jq
+
+      - name: Create .mcpack archive
+        id: pack
+        run: |
+          # build filename with version
+          filename="my-monster-girls-${{ steps.getver.outputs.version }}.mcpack"
+          # create zip of repository contents, excluding .git and the workflow files and any previous .mcpack
+          zip -r "$filename" . -x ".git/*" ".github/*" "*.mcpack" "node_modules/*"
+          echo "filename=$filename" >> "$GITHUB_OUTPUT"
+          ls -lh "$filename"
+
+      - name: Create GitHub release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ steps.getver.outputs.tag }}
+          release_name: "Release ${{ steps.getver.outputs.tag }}"
+          body: |
+            This is an automated pack built from GitHub commits.
+            
+            **Current version:** ${{ steps.getver.outputs.tag }}
+            
+            The `.mcpack` file attached to this release was generated automatically by the repository's GitHub Actions workflow and contains the latest addon / resource pack contents.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload .mcpack to release
+        uses: actions/upload-release-asset@v2
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.pack.outputs.filename }}
+          asset_name: ${{ steps.pack.outputs.filename }}
+          asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
