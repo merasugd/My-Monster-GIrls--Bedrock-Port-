@@ -9,8 +9,12 @@ permissions:
   contents: write
 
 jobs:
-  build-and-release:
+  check:
     runs-on: ubuntu-latest
+    outputs:
+      tag-exists: ${{ steps.check_tag.outputs.exists }}
+      tag: ${{ steps.getver.outputs.tag }}
+      version: ${{ steps.getver.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,27 +38,34 @@ jobs:
           echo "version=$ver" >> "$GITHUB_OUTPUT"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
-      - name: Check if tag already exists
+      - name: Check if tag already exists on remote
         id: check_tag
         run: |
           tag="${{ steps.getver.outputs.tag }}"
-          if git ls-remote --tags origin | grep -q "refs/tags/${tag}$"; then
-            echo "Tag ${tag} already exists — skipping build and release."
-            echo "exists=true" >> "$GITHUB_OUTPUT"
+          # ensure we have the remote refs available
+          git ls-remote --tags origin | grep -q "refs/tags/${tag}$" && echo "exists=true" >> "$GITHUB_OUTPUT" || echo "exists=false" >> "$GITHUB_OUTPUT"
+          if [ "${{ steps.check_tag.outputs.exists }}" = "true" ]; then
+            echo "Tag ${tag} already exists."
           else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Tag ${tag} does not exist yet."
           fi
 
-      - name: Stop if tag exists
-        if: steps.check_tag.outputs.exists == 'true'
-        run: |
-          echo "Release already exists. Skipping the rest of the workflow."
-          exit 0
+  build-and-release:
+    needs: check
+    runs-on: ubuntu-latest
+    # only run this job if the tag does NOT exist
+    if: needs.check.outputs.tag-exists == 'false'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install zip and jq (Debian)
+        run: sudo apt-get update && sudo apt-get install -y zip jq git
 
       - name: Create .mcpack archive
         id: pack
         run: |
-          filename="my-monster-girls-${{ steps.getver.outputs.version }}.mcpack"
+          filename="my-monster-girls-${{ needs.check.outputs.version }}.mcpack"
           zip -r "$filename" . -x ".git/*" ".github/*" "*.mcpack" "node_modules/*"
           echo "filename=$filename" >> "$GITHUB_OUTPUT"
           ls -lh "$filename"
@@ -63,12 +74,12 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         with:
-          tag_name: ${{ steps.getver.outputs.tag }}
-          release_name: "Release ${{ steps.getver.outputs.tag }}"
+          tag_name: ${{ needs.check.outputs.tag }}
+          release_name: "Release ${{ needs.check.outputs.tag }}"
           body: |
             This is an automated pack built from GitHub commits.
 
-            **Current version:** ${{ steps.getver.outputs.tag }}
+            **Current version:** ${{ needs.check.outputs.tag }}
 
             The `.mcpack` file attached to this release was generated automatically by the repository's GitHub Actions workflow and contains the latest addon / resource pack contents.
           draft: false
