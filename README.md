@@ -6,7 +6,7 @@ Original Resource Pack: [**Modrinth**](https://modrinth.com/resourcepack/my-mons
 
 Bedrock Resource Link: [**CurseForge**](https://www.curseforge.com/minecraft-bedrock/texture-packs/my-monster-girls-bedrock-port)
 
-Not tested: A&S support
+Currently planned: A&S support
 
 ---
 
