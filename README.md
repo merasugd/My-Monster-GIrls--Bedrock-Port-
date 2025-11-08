@@ -1,10 +1,12 @@
-`**⚠️ WARNING:** This is an *experimental* Bedrock port and may contain visual or model issues.`
+`⚠️ WARNING: This is an experimental Bedrock port and may contain visual or model issues.`
 
 **THIS IS THE BEDROCK PORT OF THE MONSTER GIRLS RESOURCE PACK OF** [**ozzyv_**](https://modrinth.com/user/ozzyv_)
 
 Original Resource Pack: [**Modrinth**](https://modrinth.com/resourcepack/my-monster-girls)
 
-Bedrock Resource Link: [**MCPEDL**](https://mcpedl.com/my-monster-girls-bedrock-port) or [**CurseForge**](https://www.curseforge.com/minecraft-bedrock/texture-packs/my-monster-girls-bedrock-port)
+Bedrock Resource Link: [**CurseForge**](https://www.curseforge.com/minecraft-bedrock/texture-packs/my-monster-girls-bedrock-port)
+
+Not tested: A&S support
 
 ---
 
